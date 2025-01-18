@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.core.content.ContextCompat
 
 class MainActivity : ComponentActivity() {
 
@@ -54,7 +55,8 @@ class MainActivity : ComponentActivity() {
             for (column in 0..2) {
                 boardCells[row][column].text = ""
                 boardCells[row][column].isEnabled = true
-                boardCells[row][column].setOnClickListener{ onCellClicked(row, column) }
+                boardCells[row][column].setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                boardCells[row][column].setOnClickListener{ this.onCellClicked(row, column) }
             }
         }
     }
@@ -73,7 +75,11 @@ class MainActivity : ComponentActivity() {
             playerTurnText.text = "Player $currentPlayer turn"
 
         } else {
-            playerTurnText.text = "Player $winner has won!"
+            if (winner == 'D') {
+                playerTurnText.text = "Draw"
+            } else {
+                playerTurnText.text = "Player $winner has won!"
+            }
 
             for (row in 0..2) {
                 for (col in 0..2) {
@@ -88,6 +94,59 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkWinner() {
-        // Implement winner logic
+        for (i in 0..2) {
+            // Row Victory
+            if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != ' ') {
+                winner = board[i][0]
+                for (col in 0..2) {
+                    boardCells[i][col].setTextColor(ContextCompat.getColor(this,
+                        android.R.color.holo_green_light))
+                }
+
+                return
+            }
+            // Column Victory
+            if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] != ' ') {
+                for (row in 0..2) {
+                    boardCells[row][i].setTextColor(ContextCompat.getColor(this,
+                        android.R.color.holo_green_light))
+                }
+
+                winner = board[0][i]
+                return
+            }
+        }
+
+        // Cross Victory
+        if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != ' ') {
+            winner = board[0][0]
+            for (i in 0..2) {
+                boardCells[i][i].setTextColor(ContextCompat.getColor(this,
+                    android.R.color.holo_green_light))
+            }
+
+            return
+        }
+
+        // Cross Victory
+        if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != ' ') {
+            winner = board[0][2]
+            for (i in 0..2) {
+                boardCells[i][2 - i].setTextColor(ContextCompat.getColor(this,
+                    android.R.color.holo_green_light))
+            }
+
+            return
+        }
+
+        // Tie Game
+        if (isBoardFull()) {
+            winner = 'D'
+            playerTurnText.text = "Draw"
+        }
+    }
+
+    private fun isBoardFull(): Boolean {
+        return board.all { row -> row.all { it != ' ' } }
     }
 }
